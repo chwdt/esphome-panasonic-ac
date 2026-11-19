@@ -22,17 +22,28 @@ climate::ClimateTraits PanasonicAC::traits() {
   traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_HEAT_COOL, climate::CLIMATE_MODE_COOL,
                               climate::CLIMATE_MODE_HEAT, climate::CLIMATE_MODE_FAN_ONLY, climate::CLIMATE_MODE_DRY});
 
+#if ESPHOME_VERSION_CODE < VERSION_CODE(2026, 4, 0)
   traits.set_supported_custom_fan_modes({"Automatic", "1", "2", "3", "4", "5"});
+#endif
 
   traits.set_supported_swing_modes({climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_BOTH,
                                     climate::CLIMATE_SWING_VERTICAL, climate::CLIMATE_SWING_HORIZONTAL});
 
+#if ESPHOME_VERSION_CODE < VERSION_CODE(2026, 4, 0)
   traits.set_supported_custom_presets({"Normal", "Powerful", "Quiet"});
+#endif
 
   return traits;
 }
 
 void PanasonicAC::setup() {
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2026, 4, 0)
+  // Custom fan modes and presets are stored on the Climate entity since ESPHome 2026.4
+  // (the ClimateTraits setters were removed in 2026.11).
+  this->set_supported_custom_fan_modes({"Automatic", "1", "2", "3", "4", "5"});
+  this->set_supported_custom_presets({"Normal", "Powerful", "Quiet"});
+#endif
+
   // Initialize times
   this->init_time_ = millis();
   this->last_packet_sent_ = millis();
